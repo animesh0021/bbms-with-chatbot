@@ -1,0 +1,150 @@
+body {
+    background-color: #f8f9fa;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.navbar-brand {
+    font-weight: bold;
+    font-size: 1.5rem;
+}
+
+.card {
+    box-shadow: 0 0.125rem 0.5rem rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(0, 0, 0, 0.125);
+    margin-bottom: 1.5rem;
+    border-radius: 0.5rem;
+}
+
+.card-header {
+    background-color: rgba(0, 0, 0, 0.03);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.125);
+    font-weight: 600;
+}
+
+.table th {
+    border-top: none;
+    font-weight: 600;
+    background-color: #f8f9fa;
+}
+
+.badge {
+    font-size: 0.8em;
+    padding: 0.4em 0.6em;
+}
+
+.btn-lg {
+    padding: 1rem 1.5rem;
+    font-size: 1.1rem;
+}
+
+.alert {
+    border: none;
+    border-radius: 0.5rem;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+}
+
+/* Blood type specific colors */
+.bg-A-plus { background-color: #dc3545 !important; }
+.bg-A-minus { background-color: #e83e8c !important; }
+.bg-B-plus { background-color: #fd7e14 !important; }
+.bg-B-minus { background-color: #20c997 !important; }
+.bg-AB-plus { background-color: #0dcaf0 !important; }
+.bg-AB-minus { background-color: #6f42c1 !important; }
+.bg-O-plus { background-color: #198754 !important; }
+.bg-O-minus { background-color: #ffc107 !important; color: #000 !important; }
+
+/* Custom styles for action buttons */
+.btn-group .btn {
+    border-radius: 0.25rem;
+    margin: 0 1px;
+}
+
+.btn-group .btn:first-child {
+    border-top-left-radius: 0.25rem;
+    border-bottom-left-radius: 0.25rem;
+}
+
+.btn-group .btn:last-child {
+    border-top-right-radius: 0.25rem;
+    border-bottom-right-radius: 0.25rem;
+}
+
+/* Hover effects */
+.table-hover tbody tr:hover {
+    background-color: rgba(0, 0, 0, 0.025);
+}
+
+.card:hover {
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    transition: box-shadow 0.15s ease-in-out;
+}
+
+/* Status badges */
+.badge.bg-success { background-color: #198754 !important; }
+.badge.bg-warning { background-color: #ffc107 !important; color: #000 !important; }
+.badge.bg-danger { background-color: #dc3545 !important; }
+.badge.bg-info { background-color: #0dcaf0 !important; }
+
+/* Form styles */
+.form-control:focus, .form-select:focus {
+    border-color: #dc3545;
+    box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+}
+
+.invalid-feedback {
+    display: block;
+}
+
+/* Responsive tables */
+.table-responsive {
+    border-radius: 0.5rem;
+}
+
+/* Modal enhancements */
+.modal-header {
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.modal-footer {
+    background-color: #f8f9fa;
+    border-top: 1px solid #dee2e6;
+}
+
+/* Custom utility classes */
+.text-danger { color: #dc3545 !important; }
+.text-warning { color: #fd7e14 !important; }
+.text-success { color: #198754 !important; }
+
+/* Loading spinner */
+.spinner-border-sm {
+    width: 1rem;
+    height: 1rem;
+}
+
+/* Print styles */
+@media print {
+    .navbar, .btn, .modal, footer {
+        display: none !important;
+    }
+    
+    .card {
+        border: 1px solid #000 !important;
+        box-shadow: none !important;
+    }
+    
+    .table {
+        border: 1px solid #000 !important;
+    }
+    
+    .table th, .table td {
+        border: 1px solid #000 !important;
+    }
+}
+
+/* ===== CHART FIX ===== */
+canvas {
+    max-width: 100%;
+    height: 100% !important;  /* Fill the fixed-height wrapper */
+    display: block;
+}

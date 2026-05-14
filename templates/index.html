@@ -1,0 +1,281 @@
+{% extends "base.html" %}
+
+{% block content %}
+<!-- Summary Cards (existing) -->
+<div class="row">
+    <div class="col-md-4">
+        <div class="card text-white bg-primary mb-3">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4>{{ total_donors }}</h4>
+                        <p>Total Donors</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-users fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card text-white bg-success mb-3">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4>{{ total_blood_units }}</h4>
+                        <p>Blood Units</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-tint fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card text-white bg-warning mb-3">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4>{{ pending_requests }}</h4>
+                        <p>Pending Requests</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-clock fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Actions & Alerts (existing) -->
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5>Quick Actions</h5>
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-md-3 mb-3">
+                        <a href="{{ url_for('add_donor') }}" class="btn btn-outline-primary btn-lg">
+                            <i class="fas fa-user-plus fa-2x"></i><br>
+                            Add Donor
+                        </a>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <button type="button" class="btn btn-outline-success btn-lg" data-bs-toggle="modal" data-bs-target="#addInventoryModal">
+                            <i class="fas fa-plus-circle fa-2x"></i><br>
+                            Add Inventory
+                        </button>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <button type="button" class="btn btn-outline-info btn-lg" data-bs-toggle="modal" data-bs-target="#addRequestModal">
+                            <i class="fas fa-hand-holding-medical fa-2x"></i><br>
+                            New Request
+                        </button>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <a href="{{ url_for('reports') }}" class="btn btn-outline-dark btn-lg">
+                            <i class="fas fa-chart-bar fa-2x"></i><br>
+                            View Reports
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5>Low Stock Alerts</h5>
+            </div>
+            <div class="card-body">
+                {% if low_stock %}
+                    {% for item in low_stock %}
+                        <div class="alert alert-warning">
+                            <strong>{{ item.blood_type }}</strong>: Only {{ item.quantity }} units left
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="text-success">All blood types have adequate stock</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ================= CHARTS SECTION ================= -->
+<div class="row mt-4">
+    <div class="col-12">
+        <h4 class="mb-3"><i class="fas fa-chart-pie me-2"></i>Analytics Overview</h4>
+    </div>
+    <!-- Inventory Bar Chart -->
+    <div class="col-md-4 mb-4">
+        <div class="card h-100">
+            <div class="card-header">
+                <h6 class="mb-0"><i class="fas fa-tint me-2 text-danger"></i>Inventory by Blood Type</h6>
+            </div>
+            <div class="card-body">
+                <!-- Fixed-height wrapper -->
+                <div style="height:250px;">
+                    <canvas id="inventoryChart" style="width:100%; height:100%;"></canvas>
+                </div>
+                <p class="text-muted text-center small mt-2">Current units available</p>
+            </div>
+        </div>
+    </div>
+    <!-- Donor Trend Line Chart -->
+    <div class="col-md-4 mb-4">
+        <div class="card h-100">
+            <div class="card-header">
+                <h6 class="mb-0"><i class="fas fa-chart-line me-2 text-success"></i>Donor Registrations</h6>
+            </div>
+            <div class="card-body">
+                <!-- Fixed-height wrapper -->
+                <div style="height:250px;">
+                    <canvas id="donorTrendChart" style="width:100%; height:100%;"></canvas>
+                </div>
+                <p class="text-muted text-center small mt-2">Last 6 months</p>
+            </div>
+        </div>
+    </div>
+    <!-- Request Status Pie Chart -->
+    <div class="col-md-4 mb-4">
+        <div class="card h-100">
+            <div class="card-header">
+                <h6 class="mb-0"><i class="fas fa-hand-holding-medical me-2 text-warning"></i>Request Status</h6>
+            </div>
+            <div class="card-body">
+                <!-- Fixed-height wrapper -->
+                <div style="height:250px;">
+                    <canvas id="requestPieChart" style="width:100%; height:100%;"></canvas>
+                </div>
+                <p class="text-muted text-center small mt-2">Pending vs Fulfilled vs Cancelled</p>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- ================= END CHARTS SECTION ================= -->
+
+<!-- Add Inventory Modal (existing) -->
+<div class="modal fade" id="addInventoryModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add Blood to Inventory</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST" action="{{ url_for('add_inventory') }}">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Blood Type</label>
+                        <select name="blood_type" class="form-select" required>
+                            <option value="">Select Blood Type</option>
+                            <option value="A+">A+</option>
+                            <option value="A-">A-</option>
+                            <option value="B+">B+</option>
+                            <option value="B-">B-</option>
+                            <option value="AB+">AB+</option>
+                            <option value="AB-">AB-</option>
+                            <option value="O+">O+</option>
+                            <option value="O-">O-</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Quantity</label>
+                        <input type="number" name="quantity" class="form-control" min="1" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Storage Location</label>
+                        <input type="text" name="location" class="form-control" value="Main Storage">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Add to Inventory</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Add Request Modal (existing) -->
+<div class="modal fade" id="addRequestModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">New Blood Request</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST" action="{{ url_for('add_request') }}">
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Patient Name *</label>
+                            <input type="text" name="patient_name" class="form-control" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Hospital *</label>
+                            <input type="text" name="hospital" class="form-control" required>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Blood Type *</label>
+                            <select name="blood_type" class="form-select" required>
+                                <option value="">Select Blood Type</option>
+                                <option value="A+">A+</option>
+                                <option value="A-">A-</option>
+                                <option value="B+">B+</option>
+                                <option value="B-">B-</option>
+                                <option value="AB+">AB+</option>
+                                <option value="AB-">AB-</option>
+                                <option value="O+">O+</option>
+                                <option value="O-">O-</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Units Required *</label>
+                            <input type="number" name="units_required" class="form-control" min="1" required>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Urgency</label>
+                            <select name="urgency" class="form-select">
+                                <option value="Normal">Normal</option>
+                                <option value="Urgent">Urgent</option>
+                                <option value="Critical">Critical</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Contact Person *</label>
+                            <input type="text" name="contact_person" class="form-control" required>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Contact Number *</label>
+                        <input type="text" name="contact_number" class="form-control" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Additional Notes</label>
+                        <textarea name="notes" class="form-control" rows="3" placeholder="Any additional information..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Submit Request</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

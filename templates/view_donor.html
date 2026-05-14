@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h4 class="mb-0"><i class="fas fa-user me-2"></i>Donor Details</h4>
+                    <a href="{{ url_for('donors') }}" class="btn btn-light btn-sm">
+                        <i class="fas fa-arrow-left me-1"></i> Back to Donors
+                    </a>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h5>Personal Information</h5>
+                        <table class="table table-bordered">
+                            <tr>
+                                <th width="40%">Name:</th>
+                                <td>{{ donor.name }}</td>
+                            </tr>
+                            <tr>
+                                <th>Age:</th>
+                                <td>{{ donor.age }} years</td>
+                            </tr>
+                            <tr>
+                                <th>Gender:</th>
+                                <td>{{ donor.gender }}</td>
+                            </tr>
+                            <tr>
+                                <th>Blood Type:</th>
+                                <td><span class="badge bg-danger">{{ donor.blood_type }}</span></td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="col-md-6">
+                        <h5>Contact Information</h5>
+                        <table class="table table-bordered">
+                            <tr>
+                                <th width="40%">Contact:</th>
+                                <td>{{ donor.contact }}</td>
+                            </tr>
+                            <tr>
+                                <th>Email:</th>
+                                <td>{{ donor.email or 'Not provided' }}</td>
+                            </tr>
+                            <tr>
+                                <th>Last Donation:</th>
+                                <td>{{ donor.last_donation.strftime('%Y-%m-%d') if donor.last_donation else 'Never donated' }}</td>
+                            </tr>
+                            <tr>
+                                <th>Registered:</th>
+                                <td>{{ donor.created_at.strftime('%Y-%m-%d') }}</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+                
+                {% if donor.address %}
+                <div class="row mt-3">
+                    <div class="col-12">
+                        <h5>Address</h5>
+                        <div class="card">
+                            <div class="card-body">
+                                {{ donor.address }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a href="{{ url_for('edit_donor', donor_id=donor.id) }}" class="btn btn-warning me-md-2">
+                                <i class="fas fa-edit me-1"></i> Edit Donor
+                            </a>
+                            <a href="{{ url_for('donors') }}" class="btn btn-secondary">
+                                <i class="fas fa-list me-1"></i> Back to List
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

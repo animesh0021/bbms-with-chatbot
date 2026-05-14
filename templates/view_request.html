@@ -1,0 +1,134 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h4 class="mb-0"><i class="fas fa-hand-holding-medical me-2"></i>Request Details</h4>
+                    <a href="{{ url_for('blood_requests') }}" class="btn btn-light btn-sm">
+                        <i class="fas fa-arrow-left me-1"></i> Back to Requests
+                    </a>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h5>Patient Information</h5>
+                        <table class="table table-bordered">
+                            <tr>
+                                <th width="40%">Patient Name:</th>
+                                <td>{{ blood_request.patient_name }}</td>
+                            </tr>
+                            <tr>
+                                <th>Hospital:</th>
+                                <td>{{ blood_request.hospital }}</td>
+                            </tr>
+                            <tr>
+                                <th>Blood Type:</th>
+                                <td><span class="badge bg-danger">{{ blood_request.blood_type }}</span></td>
+                            </tr>
+                            <tr>
+                                <th>Units Required:</th>
+                                <td>{{ blood_request.units_required }}</td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="col-md-6">
+                        <h5>Request Information</h5>
+                        <table class="table table-bordered">
+                            <tr>
+                                <th width="40%">Urgency:</th>
+                                <td>
+                                    <span class="badge 
+                                        {% if blood_request.urgency == 'Critical' %}bg-danger
+                                        {% elif blood_request.urgency == 'Urgent' %}bg-warning
+                                        {% else %}bg-info{% endif %}">
+                                        {{ blood_request.urgency }}
+                                    </span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Status:</th>
+                                <td>
+                                    <span class="badge 
+                                        {% if blood_request.status == 'Pending' %}bg-warning
+                                        {% elif blood_request.status == 'Fulfilled' %}bg-success
+                                        {% elif blood_request.status == 'Cancelled' %}bg-danger
+                                        {% else %}bg-secondary{% endif %}">
+                                        {{ blood_request.status }}
+                                    </span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Request Date:</th>
+                                <td>{{ blood_request.request_date.strftime('%Y-%m-%d %H:%M') }}</td>
+                            </tr>
+                            <tr>
+                                <th>Contact Person:</th>
+                                <td>{{ blood_request.contact_person }}</td>
+                            </tr>
+                            <tr>
+                                <th>Contact Number:</th>
+                                <td>{{ blood_request.contact_number }}</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+                
+                {% if blood_request.notes %}
+                <div class="row mt-3">
+                    <div class="col-12">
+                        <h5>Additional Notes</h5>
+                        <div class="card">
+                            <div class="card-body">
+                                {{ blood_request.notes }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a href="{{ url_for('edit_request', request_id=blood_request.id) }}" class="btn btn-warning me-md-2">
+                                <i class="fas fa-edit me-1"></i> Edit Request
+                            </a>
+                            {% if blood_request.status == 'Pending' %}
+                            <div class="dropdown me-md-2">
+                                <button class="btn btn-info dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                    <i class="fas fa-cog me-1"></i> Update Status
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <li>
+                                        <form method="POST" action="{{ url_for('update_request_status', request_id=blood_request.id) }}">
+                                            <input type="hidden" name="status" value="Fulfilled">
+                                            <button type="submit" class="dropdown-item text-success">
+                                                <i class="fas fa-check me-1"></i> Mark Fulfilled
+                                            </button>
+                                        </form>
+                                    </li>
+                                    <li>
+                                        <form method="POST" action="{{ url_for('update_request_status', request_id=blood_request.id) }}">
+                                            <input type="hidden" name="status" value="Cancelled">
+                                            <button type="submit" class="dropdown-item text-danger">
+                                                <i class="fas fa-times me-1"></i> Mark Cancelled
+                                            </button>
+                                        </form>
+                                    </li>
+                                </ul>
+                            </div>
+                            {% endif %}
+                            <a href="{{ url_for('blood_requests') }}" class="btn btn-secondary">
+                                <i class="fas fa-list me-1"></i> Back to List
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

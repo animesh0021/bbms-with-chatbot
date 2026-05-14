@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header bg-warning text-dark">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h4 class="mb-0"><i class="fas fa-user-edit me-2"></i>Edit Donor</h4>
+                    <a href="{{ url_for('donors') }}" class="btn btn-dark btn-sm">
+                        <i class="fas fa-arrow-left me-1"></i> Back to Donors
+                    </a>
+                </div>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('edit_donor', donor_id=donor.id) }}">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="name" class="form-label">Full Name *</label>
+                            <input type="text" class="form-control" id="name" name="name" value="{{ donor.name }}" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="age" class="form-label">Age *</label>
+                            <input type="number" class="form-control" id="age" name="age" min="18" max="65" value="{{ donor.age }}" required>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Gender *</label>
+                            <div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="gender" id="male" value="Male" {{ 'checked' if donor.gender == 'Male' }} required>
+                                    <label class="form-check-label" for="male">Male</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="gender" id="female" value="Female" {{ 'checked' if donor.gender == 'Female' }}>
+                                    <label class="form-check-label" for="female">Female</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="gender" id="other" value="Other" {{ 'checked' if donor.gender == 'Other' }}>
+                                    <label class="form-check-label" for="other">Other</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="blood_type" class="form-label">Blood Type *</label>
+                            <select class="form-select" id="blood_type" name="blood_type" required>
+                                <option value="">Select Blood Type</option>
+                                <option value="A+" {{ 'selected' if donor.blood_type == 'A+' }}>A+</option>
+                                <option value="A-" {{ 'selected' if donor.blood_type == 'A-' }}>A-</option>
+                                <option value="B+" {{ 'selected' if donor.blood_type == 'B+' }}>B+</option>
+                                <option value="B-" {{ 'selected' if donor.blood_type == 'B-' }}>B-</option>
+                                <option value="AB+" {{ 'selected' if donor.blood_type == 'AB+' }}>AB+</option>
+                                <option value="AB-" {{ 'selected' if donor.blood_type == 'AB-' }}>AB-</option>
+                                <option value="O+" {{ 'selected' if donor.blood_type == 'O+' }}>O+</option>
+                                <option value="O-" {{ 'selected' if donor.blood_type == 'O-' }}>O-</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="contact" class="form-label">Contact Number *</label>
+                            <input type="tel" class="form-control" id="contact" name="contact" value="{{ donor.contact }}" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="email" class="form-label">Email Address</label>
+                            <input type="email" class="form-control" id="email" name="email" value="{{ donor.email or '' }}">
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="address" class="form-label">Address</label>
+                        <textarea class="form-control" id="address" name="address" rows="3">{{ donor.address or '' }}</textarea>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="last_donation" class="form-label">Last Donation Date</label>
+                        <input type="date" class="form-control" id="last_donation" name="last_donation" 
+                               value="{{ donor.last_donation.strftime('%Y-%m-%d') if donor.last_donation else '' }}">
+                        <div class="form-text">Leave blank if never donated before</div>
+                    </div>
+
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a href="{{ url_for('donors') }}" class="btn btn-secondary me-md-2">Cancel</a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-1"></i> Update Donor
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

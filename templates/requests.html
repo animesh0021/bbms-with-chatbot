@@ -1,0 +1,262 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="fas fa-hand-holding-medical me-2"></i>Blood Requests</h2>
+    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addRequestModal">
+        <i class="fas fa-plus-circle me-1"></i> New Request
+    </button>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        {% if requests %}
+        <div class="mb-3">
+            <input type="text" class="form-control" id="searchRequests" placeholder="Search requests by patient name, hospital, or blood type...">
+        </div>
+        <div class="table-responsive">
+            <table class="table table-striped table-hover" id="requestsTable">
+                <thead class="table-light">
+                    <tr>
+                        <th class="text-dark fw-bold">ID</th>
+                        <th class="text-dark fw-bold">Patient Name</th>
+                        <th class="text-dark fw-bold">Hospital</th>
+                        <th class="text-dark fw-bold">Blood Type</th>
+                        <th class="text-dark fw-bold">Units Required</th>
+                        <th class="text-dark fw-bold">Urgency</th>
+                        <th class="text-dark fw-bold">Status</th>
+                        <th class="text-dark fw-bold">Request Date</th>
+                        <th class="text-dark fw-bold">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for req in requests %}
+                    <tr>
+                        <td>{{ req.id }}</td>
+                        <td>{{ req.patient_name }}</td>
+                        <td>{{ req.hospital }}</td>
+                        <td>
+                            <span class="badge bg-danger">{{ req.blood_type }}</span>
+                        </td>
+                        <td>{{ req.units_required }}</td>
+                        <td>
+                            <span class="badge 
+                                {% if req.urgency == 'Critical' %}bg-danger
+                                {% elif req.urgency == 'Urgent' %}bg-warning
+                                {% else %}bg-info{% endif %}">
+                                {{ req.urgency }}
+                            </span>
+                        </td>
+                        <td>
+                            <span class="badge 
+                                {% if req.status == 'Pending' %}bg-warning
+                                {% elif req.status == 'Fulfilled' %}bg-success
+                                {% elif req.status == 'Cancelled' %}bg-danger
+                                {% else %}bg-secondary{% endif %}">
+                                {{ req.status }}
+                            </span>
+                        </td>
+                        <td>{{ req.request_date.strftime('%Y-%m-%d %H:%M') }}</td>
+                        <td>
+                            <div class="btn-group" role="group">
+                                <a href="{{ url_for('view_request', request_id=req.id) }}" class="btn btn-sm btn-outline-info" title="View Details">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <a href="{{ url_for('edit_request', request_id=req.id) }}" class="btn btn-sm btn-outline-warning" title="Edit Request">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <button type="button" class="btn btn-sm btn-outline-danger delete-request-btn" 
+                                        data-request-id="{{ req.id }}"
+                                        data-patient-name="{{ req.patient_name }}"
+                                        title="Delete Request">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                                {% if req.status == 'Pending' %}
+                                <div class="dropdown">
+                                    <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" 
+                                            data-bs-toggle="dropdown" title="Update Status">
+                                        <i class="fas fa-cog"></i>
+                                    </button>
+                                    <ul class="dropdown-menu">
+                                        <li>
+                                            <form method="POST" action="{{ url_for('update_request_status', request_id=req.id) }}">
+                                                <input type="hidden" name="status" value="Fulfilled">
+                                                <button type="submit" class="dropdown-item text-success">
+                                                    <i class="fas fa-check me-1"></i> Mark Fulfilled
+                                                </button>
+                                            </form>
+                                        </li>
+                                        <li>
+                                            <form method="POST" action="{{ url_for('update_request_status', request_id=req.id) }}">
+                                                <input type="hidden" name="status" value="Cancelled">
+                                                <button type="submit" class="dropdown-item text-danger">
+                                                    <i class="fas fa-times me-1"></i> Mark Cancelled
+                                                </button>
+                                            </form>
+                                        </li>
+                                    </ul>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-4">
+            <i class="fas fa-hand-holding-medical fa-3x text-muted mb-3"></i>
+            <h4>No Blood Requests</h4>
+            <p class="text-muted">Get started by creating your first blood request.</p>
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addRequestModal">
+                <i class="fas fa-plus-circle me-1"></i> Create First Request
+            </button>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Add Request Modal -->
+<div class="modal fade" id="addRequestModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">New Blood Request</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST" action="{{ url_for('add_request') }}">
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Patient Name *</label>
+                            <input type="text" name="patient_name" class="form-control" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Hospital *</label>
+                            <input type="text" name="hospital" class="form-control" required>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Blood Type *</label>
+                            <select name="blood_type" class="form-select" required>
+                                <option value="">Select Blood Type</option>
+                                <option value="A+">A+</option>
+                                <option value="A-">A-</option>
+                                <option value="B+">B+</option>
+                                <option value="B-">B-</option>
+                                <option value="AB+">AB+</option>
+                                <option value="AB-">AB-</option>
+                                <option value="O+">O+</option>
+                                <option value="O-">O-</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Units Required *</label>
+                            <input type="number" name="units_required" class="form-control" min="1" required>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Urgency</label>
+                            <select name="urgency" class="form-select">
+                                <option value="Normal">Normal</option>
+                                <option value="Urgent">Urgent</option>
+                                <option value="Critical">Critical</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Contact Person *</label>
+                            <input type="text" name="contact_person" class="form-control" required>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Contact Number *</label>
+                        <input type="text" name="contact_number" class="form-control" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Additional Notes</label>
+                        <textarea name="notes" class="form-control" rows="3" placeholder="Any additional information..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Submit Request</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteRequestModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirm Delete</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete the blood request for: <strong id="patientNameToDelete"></strong>?</p>
+                <p class="text-danger"><i class="fas fa-exclamation-triangle me-1"></i>This action cannot be undone.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form method="POST" id="deleteRequestForm" style="display: inline;">
+                    <button type="submit" class="btn btn-danger">
+                        <i class="fas fa-trash me-1"></i> Delete
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Delete request confirmation
+    const deleteButtons = document.querySelectorAll('.delete-request-btn');
+    const deleteModal = new bootstrap.Modal(document.getElementById('deleteRequestModal'));
+    const patientNameElement = document.getElementById('patientNameToDelete');
+    const deleteForm = document.getElementById('deleteRequestForm');
+
+    deleteButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const requestId = this.getAttribute('data-request-id');
+            const patientName = this.getAttribute('data-patient-name');
+            
+            patientNameElement.textContent = patientName;
+            deleteForm.action = "/delete_request/" + requestId;
+            
+            deleteModal.show();
+        });
+    });
+
+    // Search functionality
+    const searchInput = document.getElementById('searchRequests');
+    
+    searchInput.addEventListener('input', function(e) {
+        const searchTerm = e.target.value.toLowerCase();
+        const rows = document.querySelectorAll('#requestsTable tbody tr');
+        
+        rows.forEach(row => {
+            const text = row.textContent.toLowerCase();
+            row.style.display = text.includes(searchTerm) ? '' : 'none';
+        });
+    });
+
+    // Initialize tooltips
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[title]'));
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+});
+</script>
+{% endblock %}

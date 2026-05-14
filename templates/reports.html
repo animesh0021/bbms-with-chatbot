@@ -1,0 +1,209 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="fas fa-chart-bar me-2"></i>Reports & Analytics</h2>
+</div>
+
+<!-- ================= VISUAL ANALYTICS SECTION ================= -->
+<div class="row mb-4">
+    <div class="col-12">
+        <h4 class="mb-3"><i class="fas fa-chart-pie me-2"></i>Visual Analytics</h4>
+    </div>
+    <!-- Donor Distribution Chart -->
+    <div class="col-md-6 mb-4">
+        <div class="card h-100">
+            <div class="card-header">
+                <h6 class="mb-0"><i class="fas fa-users me-2 text-primary"></i>Donor Distribution by Blood Type</h6>
+            </div>
+            <div class="card-body">
+                <!-- Fixed-height wrapper -->
+                <div style="height:300px;">
+                    <canvas id="donorDistributionChart" style="width:100%; height:100%;"></canvas>
+                </div>
+                <p class="text-muted text-center small mt-2">Number of donors per blood type</p>
+            </div>
+        </div>
+    </div>
+    <!-- Inventory vs Request Chart -->
+    <div class="col-md-6 mb-4">
+        <div class="card h-100">
+            <div class="card-header">
+                <h6 class="mb-0"><i class="fas fa-balance-scale me-2 text-success"></i>Inventory vs Requested Units</h6>
+            </div>
+            <div class="card-body">
+                <!-- Fixed-height wrapper -->
+                <div style="height:300px;">
+                    <canvas id="inventoryVsRequestChart" style="width:100%; height:100%;"></canvas>
+                </div>
+                <p class="text-muted text-center small mt-2">Available units vs requested units by blood type</p>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- ================= END VISUAL ANALYTICS ================= -->
+
+<!-- Donor Statistics (existing) -->
+<div class="row">
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Donor Statistics by Blood Type</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-sm table-striped">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="text-dark fw-bold">Blood Type</th>
+                                <th class="text-dark fw-bold">Number of Donors</th>
+                                <th class="text-dark fw-bold">Percentage</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% set total_donors = donor_stats|sum(attribute=1) %}
+                            {% for blood_type, count in donor_stats %}
+                            <tr>
+                                <td>
+                                    <span class="badge bg-danger">{{ blood_type }}</span>
+                                </td>
+                                <td>{{ count }}</td>
+                                <td>
+                                    <div class="progress" style="height: 20px;">
+                                        <div class="progress-bar bg-danger" 
+                                             style="width: {{ (count / total_donors * 100) if total_donors > 0 else 0 }}%">
+                                            {{ "%.1f"|format((count / total_donors * 100) if total_donors > 0 else 0) }}%
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Inventory Statistics (existing) -->
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Inventory Summary</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-sm table-striped">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="text-dark fw-bold">Blood Type</th>
+                                <th class="text-dark fw-bold">Total Units</th>
+                                <th class="text-dark fw-bold">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for blood_type, total in inventory_stats %}
+                            <tr>
+                                <td>
+                                    <span class="badge bg-danger">{{ blood_type }}</span>
+                                </td>
+                                <td>{{ total or 0 }}</td>
+                                <td>
+                                    <span class="badge {% if (total or 0) < 5 %}bg-warning{% else %}bg-success{% endif %}">
+                                        {% if (total or 0) < 5 %}Low{% else %}Adequate{% endif %}
+                                    </span>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Request Statistics (existing) -->
+<div class="row">
+    <div class="col-md-12 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Blood Request Statistics</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="text-dark fw-bold">Blood Type</th>
+                                <th class="text-dark fw-bold">Total Units Requested</th>
+                                <th class="text-dark fw-bold">Available Units</th>
+                                <th class="text-dark fw-bold">Shortage/Surplus</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for blood_type, requested in request_stats %}
+                            {% set available = namespace(value=0) %}
+                            {% for inv_blood_type, total in inventory_stats %}
+                                {% if inv_blood_type == blood_type %}
+                                    {% set available.value = total or 0 %}
+                                {% endif %}
+                            {% endfor %}
+                            <tr>
+                                <td>
+                                    <span class="badge bg-danger">{{ blood_type }}</span>
+                                </td>
+                                <td>{{ requested or 0 }}</td>
+                                <td>{{ available.value }}</td>
+                                <td>
+                                    {% set difference = available.value - (requested or 0) %}
+                                    <span class="badge {% if difference < 0 %}bg-danger{% elif difference == 0 %}bg-warning{% else %}bg-success{% endif %}">
+                                        {% if difference < 0 %}-{{ -difference }}{% else %}+{{ difference }}{% endif %}
+                                    </span>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Stats Cards (existing) -->
+<div class="row">
+    <div class="col-md-3 col-6 mb-3">
+        <div class="card text-white bg-primary">
+            <div class="card-body text-center">
+                <h6>Total Donors</h6>
+                <h3>{{ donor_stats|sum(attribute=1) }}</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 col-6 mb-3">
+        <div class="card text-white bg-success">
+            <div class="card-body text-center">
+                <h6>Total Blood Units</h6>
+                <h3>{{ inventory_stats|sum(attribute=1) }}</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 col-6 mb-3">
+        <div class="card text-white bg-info">
+            <div class="card-body text-center">
+                <h6>Blood Types</h6>
+                <h3>8</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 col-6 mb-3">
+        <div class="card text-white bg-warning">
+            <div class="card-body text-center">
+                <h6>Total Requests</h6>
+                <h3>{{ request_stats|sum(attribute=1) }}</h3>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

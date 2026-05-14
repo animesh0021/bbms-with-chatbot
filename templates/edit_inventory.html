@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header bg-warning text-dark">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h4 class="mb-0"><i class="fas fa-edit me-2"></i>Edit Inventory</h4>
+                    <a href="{{ url_for('inventory') }}" class="btn btn-dark btn-sm">
+                        <i class="fas fa-arrow-left me-1"></i> Back to Inventory
+                    </a>
+                </div>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('edit_inventory', inventory_id=inventory.id) }}">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="blood_type" class="form-label">Blood Type *</label>
+                            <select class="form-select" id="blood_type" name="blood_type" required>
+                                <option value="">Select Blood Type</option>
+                                <option value="A+" {{ 'selected' if inventory.blood_type == 'A+' }}>A+</option>
+                                <option value="A-" {{ 'selected' if inventory.blood_type == 'A-' }}>A-</option>
+                                <option value="B+" {{ 'selected' if inventory.blood_type == 'B+' }}>B+</option>
+                                <option value="B-" {{ 'selected' if inventory.blood_type == 'B-' }}>B-</option>
+                                <option value="AB+" {{ 'selected' if inventory.blood_type == 'AB+' }}>AB+</option>
+                                <option value="AB-" {{ 'selected' if inventory.blood_type == 'AB-' }}>AB-</option>
+                                <option value="O+" {{ 'selected' if inventory.blood_type == 'O+' }}>O+</option>
+                                <option value="O-" {{ 'selected' if inventory.blood_type == 'O-' }}>O-</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="quantity" class="form-label">Quantity *</label>
+                            <input type="number" class="form-control" id="quantity" name="quantity" 
+                                   value="{{ inventory.quantity }}" min="0" required>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="location" class="form-label">Storage Location *</label>
+                            <input type="text" class="form-control" id="location" name="location" 
+                                   value="{{ inventory.location }}" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="status" class="form-label">Status *</label>
+                            <select class="form-select" id="status" name="status" required>
+                                <option value="Available" {{ 'selected' if inventory.status == 'Available' }}>Available</option>
+                                <option value="Reserved" {{ 'selected' if inventory.status == 'Reserved' }}>Reserved</option>
+                                <option value="Expired" {{ 'selected' if inventory.status == 'Expired' }}>Expired</option>
+                                <option value="Used" {{ 'selected' if inventory.status == 'Used' }}>Used</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="expiry_date" class="form-label">Expiry Date</label>
+                        <input type="date" class="form-control" id="expiry_date" name="expiry_date" 
+                               value="{{ inventory.expiry_date.strftime('%Y-%m-%d') if inventory.expiry_date else '' }}">
+                        <div class="form-text">Blood typically expires 42 days after collection</div>
+                    </div>
+
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a href="{{ url_for('inventory') }}" class="btn btn-secondary me-md-2">Cancel</a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-1"></i> Update Inventory
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

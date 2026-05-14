@@ -1,0 +1,35 @@
+<!-- templates/chatbot_widget.html -->
+<!-- Floating AI Chatbot Widget for Blood Bank Management System -->
+
+<!-- Toggle button (red circle) -->
+<button id="chatbot-toggle" class="btn btn-danger" aria-label="Open chat">
+    <i class="fas fa-comment"></i>
+</button>
+
+<!-- Chat container (hidden initially) -->
+<div id="chatbot-container">
+    <!-- Header -->
+    <div class="chatbot-header">
+        <h5>
+            <i class="fas fa-robot text-danger"></i>
+            Blood Bank Assistant
+        </h5>
+        <button id="chatbot-close" aria-label="Close chat">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+
+    <!-- Messages area -->
+    <div id="chatbot-messages">
+        <!-- Initial bot message will be added by JavaScript -->
+    </div>
+
+    <!-- Input area -->
+    <div class="chatbot-input-area">
+        <input type="text" id="chatbot-input" placeholder="Type your message..." autocomplete="off">
+        <button id="chatbot-send" aria-label="Send message">
+            <i class="fas fa-paper-plane"></i>
+        </button>
+    </div>
+</div>
+
