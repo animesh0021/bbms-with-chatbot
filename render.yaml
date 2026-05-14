@@ -3,5 +3,5 @@ services:
     name: bbms-with-chatbot
     env: python
     plan: free
-    buildCommand: "pip install -r requirements.txt"
-    startCommand: "/opt/render/project/src/.venv/bin/gunicorn app:app"
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app
